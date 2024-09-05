@@ -1,35 +1,32 @@
 from requests import get, RequestException
-from sys import argv
+from argparse import ArgumentParser
 
 # API's website: https://ip-api.com/
 
-def ip_info(ip:str=None) -> dict:
+def ip_info(ip:str=None, timeout:int=10) -> dict:
     url = 'http://ip-api.com/json/'
     params = {'fields': 66846719} # = ALL. For more options refer to the API's website: https://ip-api.com/
     try:
-        response = get(url+(ip if ip else ''), params=params, timeout=10)
+        response = get(url+(ip if ip and isinstance(ip, str) else ''), params=params, timeout=timeout)
         if 'application/json' in response.headers['Content-Type']:
             return response.json()
     except RequestException:
         pass
-    return {'Error': 'Compruebe su conexión'}
-
-def show_help():
-    print('Ingresar como parámetro a continuación del script la IP cuya información desea saber. Ej: ip_info 168.230.13.21')
+    return {'error': 'check your internet access or firewall settings'}
 
 if __name__ == '__main__':
-    show_help_ = 1
-    if len(argv) == 1:
-        ip=None
-        show_help_ = 0
-    elif len(argv) == 2:
-        if argv[1].count('.') == 3:
-            if all([i.isnumeric() for i in argv[1].split('.')]):
-                ip = argv[1]
-                show_help_ = 0
-    if show_help_:
-        show_help()
-        exit(1)
-    res = ip_info(ip)
-    for i in res.keys():
-        print(f'{i}: {res[i]}')
+    parser = ArgumentParser()
+    parser.add_argument("ip", default=None, nargs="?", action="store",
+                        help="IPv4 address which information you want to get "
+                        "(default: yours)")
+    args = parser.parse_args()
+
+    if args.ip != None and not (args.ip.count('.') == 3 and all(map(lambda x: x.isnumeric(), args.ip.split('.')))):
+        parser.error("{} is not a valid IPv4 address".format(args.ip))
+
+    res = ip_info(args.ip)
+
+    max_key_length = max(map(len, res.keys()))
+
+    for key, value in res.items():
+        print(f'{key.ljust(max_key_length)}: {value}')
