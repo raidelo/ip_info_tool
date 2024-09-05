@@ -1,9 +1,11 @@
 from requests import get, RequestException
 from sys import argv
 
+# API's website: https://ip-api.com/
+
 def ip_info(ip:str=None) -> dict:
     url = 'http://ip-api.com/json/'
-    params = {'fields': 66846719} # = ALL
+    params = {'fields': 66846719} # = ALL. For more options refer to the API's website: https://ip-api.com/
     try:
         response = get(url+(ip if ip else ''), params=params, timeout=10)
         if 'application/json' in response.headers['Content-Type']:
