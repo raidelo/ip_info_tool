@@ -69,7 +69,7 @@ class IpInfoHandler:
             else:
                 return {"content": "invalid"}
         except RequestException:
-            return {"error": "check your internet access or firewall settings"}
+            return {"error": "verifica tu conexión a internet o cortafuegos"}
 
     def set_timeout(self, t: int) -> None:
         self.__timeout = t
@@ -79,7 +79,7 @@ class IpInfoHandler:
 
     def set_fields(self, num: int) -> None:
         if num > self.ALL_FIELDS_NUM:
-            raise ValueError(f"{num} too large")
+            raise ValueError(f"{num} demasiado grande!")
         self.__fields = num
 
     def get_fields(self) -> int:
@@ -94,28 +94,28 @@ class IpInfoHandler:
         elif isinstance(input, (list, tuple)):
             data = list(map(lambda x: x.strip(), input))
         else:
-            raise ValueError("parameter 'input' must be of type 'str', 'list' or 'tuple'")
+            raise ValueError("el parámetro 'input' debe ser de tipo 'str', 'list' o 'tuple'")
         num = 0
         for item in data:
             if item in self.FIELDS.keys():
                 num += self.FIELDS[item][0]
             else:
                 if item != "":
-                    print(f"error: field not valid -> {item}")
+                    print(f"error: campo inválido -> {item}")
         return num
 
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("ip", default=None, nargs="?",
-                        help="IPv4 address which information you want to get "
-                        "(default: yours)")
+                        help="dirección IPv4 de la cual quieres obtener la información"
+                        "(default: la tuya)")
     parser.add_argument("-o", "--options", nargs=1, default=IpInfoHandler.DEFAULT_FIELDS, metavar="[option1,option2,...,optionN]",
-                        help="info fields you want to obtain. check documentation or API's web for all the options available "
+                        help="los campos que quieres obtener. verifica la documentación o la página web de la API para ver todas las opciones disponibles"
                         "(default: {})".format(','.join(IpInfoHandler.DEFAULT_FIELDS)))
     args = parser.parse_args()
 
     if args.ip != None and not (args.ip.count('.') == 3 and all(map(lambda x: x.isnumeric(), args.ip.split('.')))):
-        parser.error("{} is not a valid IPv4 address".format(args.ip))
+        parser.error("{} no es una dirección IPv4 válida".format(args.ip))
 
     ip_handler = IpInfoHandler()
     
